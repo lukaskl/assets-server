@@ -64,6 +64,7 @@ module.exports = typeWebpack({
   plugins: [
     new Dotenv({
       systemvars: true,
+      path: path.join(__dirname, '../.env.test'),
     }),
     new CleanWebpackPlugin(),
     new TreatWarningsAsErrors(),

@@ -59,6 +59,7 @@ module.exports = typeWebpack({
   plugins: [
     new Dotenv({
       systemvars: true,
+      path: path.join(__dirname, '../.env.production'),
     }),
     new CleanWebpackPlugin(),
     new TreatWarningsAsErrors(),
@@ -71,4 +72,7 @@ module.exports = typeWebpack({
       },
     }),
   ],
+  optimization: {
+    minimize: false,
+  },
 });

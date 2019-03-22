@@ -67,6 +67,7 @@ module.exports = typeWebpack({
   plugins: [
     new Dotenv({
       systemvars: true,
+      path: path.join(__dirname, '../.env.dev'),
     }),
     new CleanWebpackPlugin(),
     // Only use this in DEVELOPMENT

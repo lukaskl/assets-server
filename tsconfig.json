@@ -1,23 +1,22 @@
 {
-   "compilerOptions": {
-     "target": "es6",
-     "baseUrl": "./src",
-     "paths": {
-       "~/*": ["./*"]
-     },
-     "allowSyntheticDefaultImports": true,
-     "sourceMap": true,
-     "allowJs": true,
-     "outDir": "build",
-     "module": "esnext",
-     "moduleResolution": "node",
-     "emitDecoratorMetadata": true,
-     "experimentalDecorators": true,
-     "lib": ["es2015", "es6", "es7", "esnext"],
-     "noImplicitAny": false,
-     "typeRoots": ["node_modules/@types"]
-   },
-   "include": ["./src/**/*.ts", "./src/**/*.d.ts"],
-   "exclude": ["./node_modules"]
- }
- 
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "outDir": "build",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es2015", "es6", "es7", "esnext"],
+    "noImplicitAny": false,
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.d.ts"],
+  "exclude": ["./node_modules"]
+}

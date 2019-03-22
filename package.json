@@ -8,8 +8,6 @@
       "serve": "node build/prod/server.js"
    },
    "dependencies": {
-      "typeorm": "0.2.15",
-      "reflect-metadata": "^0.1.10",
       "chalk": "2",
       "cors": "^2.8.4",
       "dotenv": "^7.0.0",
@@ -19,10 +17,11 @@
       "lodash": "^4.17.2",
       "morgan": "^1.9.1",
       "pg": "^7.9.0",
+      "reflect-metadata": "^0.1.10",
+      "typeorm": "0.2.15",
       "uuid": "^3.3.2"
    },
    "devDependencies": {
-      "@types/node": "^8.0.29",
       "@types/chai": "^4.1.0",
       "@types/chai-as-promised": "^7.1.0",
       "@types/cors": "^2.8.3",
@@ -31,6 +30,7 @@
       "@types/eslint": "^4.16.6",
       "@types/lodash": "^4.14.92",
       "@types/mocha": "^5.2.6",
+      "@types/node": "^8.0.29",
       "@types/pg": "^7.4.14",
       "@types/prettier": "^1.16.1",
       "@types/sinon": "^7.0.10",
@@ -49,6 +49,7 @@
       "eslint-config-prettier": "^4.1.0",
       "eslint-loader": "^2.1.2",
       "eslint-plugin-prettier": "^3.0.1",
+      "import-glob": "^1.5.0",
       "mocha": "^6.0.2",
       "mocha-webpack": "^1.1.0",
       "prettier": "^1.16.4",
