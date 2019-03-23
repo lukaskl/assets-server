@@ -1,14 +1,17 @@
 {
    "name": "bulb-server",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
+   "version": "0.1.0",
+   "description": "Assets manager",
    "scripts": {
       "start": "webpack --config config/webpack.config.dev.js",
       "build": "webpack --config config/webpack.config.prod.js",
-      "serve": "node build/prod/server.js"
+      "serve": "node build/prod/server.js",
+      "swagger": "tsoa routes && tsoa swagger",
+      "swagger:watch": "watch \"yarn swagger\" ./src/modules --interval 20"
    },
    "dependencies": {
       "chalk": "2",
+      "class-validator": "^0.9.1",
       "cors": "^2.8.4",
       "dotenv": "^7.0.0",
       "express": "^4.14.0",
@@ -16,9 +19,11 @@
       "inversify": "^5.0.1",
       "inversify-binding-decorators": "^3.2.0",
       "lodash": "^4.17.2",
+      "lodash-es": "^4.17.11",
       "morgan": "^1.9.1",
       "pg": "^7.9.0",
       "reflect-metadata": "^0.1.10",
+      "swagger-ui-express": "^4.0.2",
       "tsoa": "^2.3.8",
       "typeorm": "0.2.15",
       "uuid": "^3.3.2"
@@ -31,11 +36,13 @@
       "@types/es6-promise": "^3.3.0",
       "@types/eslint": "^4.16.6",
       "@types/lodash": "^4.14.92",
+      "@types/lodash-es": "^4.17.3",
       "@types/mocha": "^5.2.6",
       "@types/node": "^8.0.29",
       "@types/pg": "^7.4.14",
       "@types/prettier": "^1.16.1",
       "@types/sinon": "^7.0.10",
+      "@types/uuid": "^3.4.4",
       "@types/webpack": "^4.4.26",
       "@types/webpack-env": "^1.13.3",
       "@types/webpack-node-externals": "^1.6.0",
@@ -58,6 +65,7 @@
       "sinon": "^7.3.0",
       "start-server-webpack-plugin": "^2.2.0",
       "typescript": "^3.3.4000",
+      "watch": "^1.0.2",
       "webpack": "^4.29.6",
       "webpack-cli": "^3.3.0",
       "webpack-node-externals": "^1.6.0"

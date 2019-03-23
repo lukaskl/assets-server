@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Container, inject, interfaces } from 'inversify';
 import { autoProvide, makeFluentProvideDecorator, makeProvideDecorator } from 'inversify-binding-decorators';
 import { IDbConnection } from '~/server/database';
 
 import { TYPES } from './types';
-import { Repository } from 'typeorm';
 
 let container = new Container();
 
@@ -39,10 +39,18 @@ let injectRepository = function(entity: Function) {
   return inject(getRepositoryToken(entity));
 };
 
+function bindDependencies(func, dependencies) {
+  let injections = dependencies.map(dependency => {
+    return container.get(dependency);
+  });
+  return func.bind(func, ...injections);
+}
+
 export {
   container as iocContainer,
   provideRepository,
   injectRepository,
+  bindDependencies,
   autoProvide,
   provide,
   provideSingleton,

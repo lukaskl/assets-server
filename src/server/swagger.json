@@ -1,0 +1,222 @@
+{
+	"basePath": "/",
+	"consumes": [
+		"application/json"
+	],
+	"definitions": {
+		"User": {
+			"properties": {
+				"id": {
+					"type": "number",
+					"format": "double"
+				},
+				"uuid": {
+					"type": "string"
+				},
+				"email": {
+					"type": "string"
+				},
+				"firstName": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"lastName": {
+					"type": "string",
+					"x-nullable": true
+				}
+			},
+			"required": [
+				"id",
+				"uuid",
+				"email"
+			],
+			"type": "object"
+		},
+		"IUserContent": {
+			"properties": {
+				"email": {
+					"type": "string"
+				},
+				"firstName": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"lastName": {
+					"type": "string",
+					"x-nullable": true
+				}
+			},
+			"required": [
+				"email"
+			],
+			"type": "object"
+		},
+		"PartialIUserContent": {
+			"description": "Make all properties in T optional",
+			"properties": {},
+			"type": "object"
+		}
+	},
+	"info": {
+		"title": "bulb-server",
+		"version": "0.1.0",
+		"description": "Assets manager"
+	},
+	"paths": {
+		"/users": {
+			"get": {
+				"operationId": "GetAll",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/User"
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"default": 0,
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0
+					},
+					{
+						"default": 100,
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 100
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "content",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/IUserContent"
+						}
+					}
+				]
+			}
+		},
+		"/users/{uuid}": {
+			"get": {
+				"operationId": "Get",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					},
+					{
+						"in": "body",
+						"name": "content",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PartialIUserContent"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Delete",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "number",
+							"format": "double"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			}
+		}
+	},
+	"produces": [
+		"application/json"
+	],
+	"swagger": "2.0",
+	"securityDefinitions": {},
+	"host": "localhost:3010"
+}

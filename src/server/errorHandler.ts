@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
-import { UserError } from '~/modules/common';
+import { UserError, ValidationError } from '~/modules/common';
 import { ErrorRequestHandler } from 'express';
+import { ValidateError } from 'tsoa';
 
 // Error-handling middleware always takes four arguments
 // https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
@@ -14,6 +15,27 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     console.error(`ERROR (${errId}):`, error.message);
     return res.status(error.responseCode).json({
       message: error.message,
+      trackingId: errId,
+    });
+  }
+
+  if (err.constructor.name === 'ValidationError') {
+    const error = err as ValidationError;
+    // eslint-disable-next-line no-console
+    console.error(`ERROR (${errId}):`, error.message);
+    return res.status(error.responseCode).json({
+      message: 'Validation error',
+      fields: error.errors,
+      trackingId: errId,
+    });
+  }
+  if (err.constructor.name === 'ValidateError') {
+    const error = err as ValidateError;
+    // eslint-disable-next-line no-console
+    console.error(`ERROR (${errId}):`, error.message);
+    return res.status(error.status).json({
+      message: 'Validation error',
+      fields: error.fields,
       trackingId: errId,
     });
   }

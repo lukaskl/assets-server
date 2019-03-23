@@ -1,12 +1,12 @@
 {
   "swagger": {
-      "outputDirectory": "./dist",
-      "entryFile": "./src/server.ts",
+      "outputDirectory": "./src/server/",
+      "entryFile": "./src/modules/routes.tsoa.ts",
       "host": "localhost:3010",
-      "basePath": "/v1"
+      "basePath": "/"
   },
   "routes": {
-    "basePath": "/api",
+    "basePath": "/",
     "entryFile": "./src/modules/routes.tsoa.ts",
     "routesDir": "./src/server",
     "iocModule": "./src/ioc/container",
