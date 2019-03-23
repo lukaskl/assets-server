@@ -1,7 +1,5 @@
 import { IDbConnection } from '~/server/database';
 
-// import { getUsersRouter } from './users';
+import { getUsersRouter } from './user';
 
-export default (dbConnection: IDbConnection) => [
-  // { route: '/user', router: getUsersRouter(dbConnection) }
-];
+export default (dbConnection: IDbConnection) => [{ route: '/user', router: getUsersRouter(dbConnection) }];

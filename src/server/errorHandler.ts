@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import { UserError } from '~/modules/common';
 
-export function errorHandler(err, req, res, next) {
+export function errorHandler(err, req, res) {
   const errId = uuid();
 
   if (err.constructor.name === 'UserError') {

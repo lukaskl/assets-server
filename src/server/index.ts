@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { initServer } from './server.hmr';
 
 export const startServer = async () =>
