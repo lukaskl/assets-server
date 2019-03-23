@@ -13,10 +13,13 @@
       "dotenv": "^7.0.0",
       "express": "^4.14.0",
       "express-async-errors": "^3.1.1",
+      "inversify": "^5.0.1",
+      "inversify-binding-decorators": "^3.2.0",
       "lodash": "^4.17.2",
       "morgan": "^1.9.1",
       "pg": "^7.9.0",
       "reflect-metadata": "^0.1.10",
+      "tsoa": "^2.3.8",
       "typeorm": "0.2.15",
       "uuid": "^3.3.2"
    },

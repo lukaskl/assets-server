@@ -16,8 +16,9 @@ module.exports = typeEslint({
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/array-type': ['error', 'array-simple'],
     '@typescript-eslint/no-parameter-properties': 'off',
-    "@typescript-eslint/explicit-member-accessibility": "off",
-    "@typescript-eslint/no-var-requires": "error",
-    "no-console": "warn",
+    '@typescript-eslint/explicit-member-accessibility': 'off',
+    '@typescript-eslint/no-var-requires': 'error',
+    'no-console': 'warn',
+    '@typescript-eslint/no-use-before-define': ['error', { classes: false }],
   },
 });

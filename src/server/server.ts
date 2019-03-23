@@ -3,20 +3,19 @@ import 'express-async-errors';
 import cors from 'cors';
 import express from 'express';
 import logger from 'morgan';
-import routes from '~/modules/routers';
 
 import { errorHandler } from './errorHandler';
-import { IDbConnection } from './database';
+import { RegisterRoutes } from './routes';
 
 const app = express();
 
-function initServer(dbConnection: IDbConnection) {
+function initServer() {
   app.use(logger('dev'));
   app.use(cors());
   app.use(express.json());
+  RegisterRoutes(app);
   app.use(express.urlencoded({ extended: false }));
 
-  routes(dbConnection).forEach(r => app.use(r.route, r.router));
   app.use(errorHandler);
   return app;
 }

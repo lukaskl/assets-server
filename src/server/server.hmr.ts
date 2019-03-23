@@ -1,12 +1,15 @@
 /* eslint-disable no-console */
 import { Http2Server } from 'http2';
+import { iocContainer, TYPES } from '~/ioc';
 
-import { IDbInitConfig, IDbConnection } from './database';
+import { IDbConnection, IDbInitConfig } from './database';
 
 export const initServer = async (dbConfig: IDbInitConfig, serverPort: number) => {
   // These next imports are necessary for HMR
   let dbConnection: IDbConnection = await require('./database').initDb(dbConfig);
-  let app = require('./server').default(dbConnection);
+  iocContainer.bind(TYPES.DB).toConstantValue(dbConnection);
+
+  let app = require('./server').default();
 
   const server = app.listen(serverPort, () =>
     console.log(`API Server is now running on http://localhost:${serverPort}`),
@@ -14,15 +17,11 @@ export const initServer = async (dbConfig: IDbInitConfig, serverPort: number) =>
 
   // Hot module reloading exists only during the development build
   if (module.hot) {
-    module.hot.accept(['./server', './database'], async () => {
+    module.hot.accept(['./server'], async () => {
       try {
-        await dbConnection.db.close();
-        const { getConnection } = await import('./database');
-        dbConnection = await getConnection(dbConfig);
-        // replace request handler of server
         server.removeListener('request', app);
         const { default: nextApp } = await import('./server');
-        app = nextApp(dbConnection);
+        app = nextApp();
         server.on('request', app);
       } catch (err) {
         console.error(err);

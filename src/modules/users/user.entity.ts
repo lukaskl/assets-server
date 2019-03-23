@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { provideRepository } from '~/ioc';
 
+@provideRepository(User)
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
