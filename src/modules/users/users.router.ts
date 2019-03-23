@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import { IDbConnection } from '~/server/database';
-import { User } from './User';
+import { User } from './user.entity';
 
 // import audioMetadataServiceFactory from './users.service';
 

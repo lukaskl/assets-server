@@ -1,7 +1,11 @@
 import uuid from 'uuid/v4';
 import { UserError } from '~/modules/common';
+import { ErrorRequestHandler } from 'express';
 
-export function errorHandler(err, req, res) {
+// Error-handling middleware always takes four arguments
+// https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   const errId = uuid();
 
   if (err.constructor.name === 'UserError') {
@@ -20,4 +24,4 @@ export function errorHandler(err, req, res) {
     message: 'Internal server Error',
     trackingId: errId,
   });
-}
+};
