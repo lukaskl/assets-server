@@ -2,13 +2,11 @@ import { inject } from 'inversify';
 import { Body, Post, Route } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
 import { assertIsValid, HttpStatus, UserError } from '~/modules/common';
-import { UserService, UserCreateRequest, User } from '~/modules/users';
+import { User, UserCreateRequest, UserService } from '~/modules/users';
 
 import { AuthService } from './auth.service';
 import { AuthPayload } from './auth.types';
 
-// eslint has a trouble to see that 'Query' is actually used ¯\_(ツ)_/¯
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 @Route('auth')
 @provideSingleton(AuthController)
 export class AuthController {

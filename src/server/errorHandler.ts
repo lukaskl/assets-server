@@ -1,7 +1,7 @@
-import uuid from 'uuid/v4';
-import { UserError, ValidationError, HttpStatus } from '~/modules/common';
 import { ErrorRequestHandler } from 'express';
 import { ValidateError } from 'tsoa';
+import uuid from 'uuid/v4';
+import { UserError, ValidationError } from '~/modules/common';
 
 // Error-handling middleware always takes four arguments
 // https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
