@@ -28,4 +28,8 @@ export const initServer = async (dbConfig: IDbInitConfig, serverPort: number) =>
       }
     });
   }
+  return {
+    dbConnection,
+    server,
+  };
 };

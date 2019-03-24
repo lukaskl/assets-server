@@ -68,7 +68,6 @@ module.exports = typeWebpack({
     }),
     new CleanWebpackPlugin(),
     new TreatWarningsAsErrors(),
-    new webpack.WatchIgnorePlugin([paths.schemaTypeDefs]),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),

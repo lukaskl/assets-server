@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { validate } from 'class-validator';
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import { DeepPartial, Repository } from 'typeorm';
 import uuid from 'uuid/v4';
 
-import { IModel, UserError, ValidationError } from '../common';
+import { IModel, UserError } from '../common';
+import { assertIsValid } from './ValidationError';
 
 export interface IPagination {
   skip?: number;
@@ -20,7 +20,7 @@ export class BaseService<TEntity extends IModel> {
 
   readAll = async ({ skip = 0, take = MAX_PAGINATION }: IPagination = {}) => {
     skip = Math.max(0, skip);
-    take = Math.min(Math.max(0, take), MAX_PAGINATION);
+    take = Math.min(take <= 0 ? MAX_PAGINATION : take, MAX_PAGINATION);
     const result = await this.repository.find({
       skip,
       take,
@@ -29,6 +29,9 @@ export class BaseService<TEntity extends IModel> {
   };
 
   read = async (uuid: string) => {
+    if (!uuid) {
+      throw new UserError(400, 'uuid field is missing');
+    }
     return this.repository.findOne({
       where: {
         uuid,
@@ -40,10 +43,7 @@ export class BaseService<TEntity extends IModel> {
     const entity = this.repository.create((model as unknown) as DeepPartial<TEntity>);
     entity.uuid = uuid();
 
-    const errors = await validate(entity);
-    if (errors.length > 0) {
-      throw new ValidationError(errors);
-    }
+    await assertIsValid(entity);
     const result = await this.repository.insert(entity as any);
     return await this.repository.findOne(result.identifiers[0]);
   };
@@ -56,13 +56,13 @@ export class BaseService<TEntity extends IModel> {
   };
 
   update = async (uuid: string, model: Partial<TEntity>) => {
+    if (!uuid) {
+      throw new UserError(400, 'uuid field is missing');
+    }
     model = _.omit(model, 'id', 'uuid');
     const entity = this.repository.create((model as unknown) as DeepPartial<TEntity>);
 
-    const errors = await validate(entity, { skipMissingProperties: true });
-    if (errors.length > 0) {
-      throw new ValidationError(errors);
-    }
+    await assertIsValid(entity, { skipMissingProperties: true });
 
     await this.repository.update({ uuid } as any, entity as any);
     return await this.read(uuid);
