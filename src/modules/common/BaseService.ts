@@ -6,6 +6,7 @@ import uuid from 'uuid/v4';
 
 import { IModel, UserError } from '../common';
 import { assertIsValid } from './ValidationError';
+import { isUuid } from './utils';
 
 export interface IPagination {
   skip?: number;
@@ -29,8 +30,8 @@ export class BaseService<TEntity extends IModel> {
   };
 
   read = async (uuid: string) => {
-    if (!uuid) {
-      throw new UserError(400, 'uuid field is missing');
+    if (!isUuid(uuid)) {
+      throw new UserError(400, 'invalid uuid');
     }
     return this.repository.findOne({
       where: {
@@ -49,15 +50,15 @@ export class BaseService<TEntity extends IModel> {
   };
 
   delete = async (uuid: string) => {
-    if (!uuid) {
-      throw new UserError(400, 'uuid field is missing');
+    if (!isUuid(uuid)) {
+      throw new UserError(400, 'invalid uuid');
     }
     return await this.repository.delete({ uuid } as any);
   };
 
   update = async (uuid: string, model: Partial<TEntity>) => {
-    if (!uuid) {
-      throw new UserError(400, 'uuid field is missing');
+    if (!isUuid(uuid)) {
+      throw new UserError(400, 'invalid uuid');
     }
     model = _.omit(model, 'id', 'uuid');
     const entity = this.repository.create((model as unknown) as DeepPartial<TEntity>);

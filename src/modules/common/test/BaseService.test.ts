@@ -9,6 +9,8 @@ import { UserError } from '../UserError';
 import { ValidationError } from '../ValidationError';
 import { getFakeRepository, stringify } from './utils';
 
+const testUuid = '12345678-aaaa-eeee-8888-abcdef123456';
+
 class DummyEntity implements IModel {
   id: number;
 
@@ -50,9 +52,9 @@ describe('Base Service Unit Tests', () => {
     it('assigns new UUID', async () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
-      await service.create({ uuid: 'fake-uuid', name: 'tas', email: 'test@tte.com' });
+      await service.create({ uuid: testUuid, name: 'tas', email: 'test@tte.com' });
       const model = (repository.mock.insert.args[0] as any)[0];
-      chai.expect(model).not.contain({ uuid: 'fake-uuid' });
+      chai.expect(model).not.contain({ uuid: testUuid });
       chai.expect(model.uuid).match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
     });
   });
@@ -62,16 +64,17 @@ describe('Base Service Unit Tests', () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
       await chai.expect(service.read('')).eventually.rejectedWith(UserError);
+      await chai.expect(service.read('not an uuid')).eventually.rejectedWith(UserError);
     });
     it('finds by uuid', async () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
-      await service.read('uuid');
+      await service.read(testUuid);
       chai.expect(repository.mock.findOne.callCount).to.eq(1, 'repository.mock.findOne.callCount');
       const model = (repository.mock.findOne.args[0] as any)[0];
       chai.expect(model).to.eql({
         where: {
-          uuid: 'uuid',
+          uuid: testUuid,
         },
       });
     });
@@ -115,7 +118,7 @@ describe('Base Service Unit Tests', () => {
     it('does not allow to change UUID', async () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
-      await service.update('initial-uuid', { uuid: 'fake-uuid', name: 'tas', email: 'test@tte.com' });
+      await service.update(testUuid, { uuid: 'fake-uuid', name: 'tas', email: 'test@tte.com' });
       const model = (repository.mock.update.args[0] as any)[1];
       chai.expect(model).to.eql({ name: 'tas', email: 'test@tte.com' });
     });
@@ -124,11 +127,11 @@ describe('Base Service Unit Tests', () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
       await chai
-        .expect(service.update('initial-uuid', { uuid: 'fake-uuid', name: 't', email: 'test@tte.com' }))
+        .expect(service.update(testUuid, { uuid: 'fake-uuid', name: 't', email: 'test@tte.com' }))
         .eventually.rejectedWith(ValidationError);
 
       await chai
-        .expect(service.update('initial-uuid', { uuid: 'fake-uuid', name: 'ta', email: 'test@tte.' }))
+        .expect(service.update(testUuid, { uuid: 'fake-uuid', name: 'ta', email: 'test@tte.' }))
         .eventually.rejectedWith(ValidationError);
 
       chai.expect(repository.mock.update.callCount).to.be.eq(0, 'repository.mock.update.callCount');
@@ -138,7 +141,7 @@ describe('Base Service Unit Tests', () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
 
-      await chai.expect(service.update('initial-uuid', { email: 'test@test.com' })).eventually.contain({ id: 1 });
+      await chai.expect(service.update(testUuid, { email: 'test@test.com' })).eventually.contain({ id: 1 });
 
       const model = (repository.mock.update.args[0] as any)[1];
       chai.expect(model).to.eql({ email: 'test@test.com' });
@@ -155,11 +158,11 @@ describe('Base Service Unit Tests', () => {
     it('deletes by uuid', async () => {
       const repository = getFakeRepository(DummyEntity);
       const service = new DummyService(repository);
-      await service.delete('uuid');
+      await service.delete(testUuid);
       chai.expect(repository.mock.delete.callCount).to.eq(1, 'repository.mock.delete.callCount');
       const model = (repository.mock.delete.args[0] as any)[0];
       chai.expect(model).to.eql({
-        uuid: 'uuid',
+        uuid: testUuid,
       });
     });
   });
