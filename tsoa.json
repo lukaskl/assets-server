@@ -1,11 +1,19 @@
 {
   "swagger": {
-      "outputDirectory": "./src/server/",
-      "entryFile": "./src/modules/routes.tsoa.ts",
-      "host": "localhost:3010",
-      "basePath": "/"
+    "outputDirectory": "./src/server/",
+    "entryFile": "./src/modules/routes.tsoa.ts",
+    "host": "localhost:3010",
+    "basePath": "/",
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "name": "authorization",
+        "in": "header"
+      }
+    }
   },
   "routes": {
+    "authenticationModule": "./src/server/authentication.ts",
     "basePath": "/",
     "entryFile": "./src/modules/routes.tsoa.ts",
     "routesDir": "./src/server",

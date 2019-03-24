@@ -2,7 +2,7 @@
 import { validate } from 'class-validator';
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import uuid from 'uuid/v4';
 
 import { IModel, UserError, ValidationError } from '../common';
@@ -37,7 +37,7 @@ export class BaseService<TEntity extends IModel> {
   };
 
   create = async (model: Partial<TEntity>): Promise<TEntity> => {
-    const entity = (this.repository.create(model as any) as any) as TEntity;
+    const entity = this.repository.create((model as unknown) as DeepPartial<TEntity>);
     entity.uuid = uuid();
 
     const errors = await validate(entity);
@@ -57,7 +57,7 @@ export class BaseService<TEntity extends IModel> {
 
   update = async (uuid: string, model: Partial<TEntity>) => {
     model = _.omit(model, 'id', 'uuid');
-    const entity = (this.repository.create(model as any) as any) as TEntity;
+    const entity = this.repository.create((model as unknown) as DeepPartial<TEntity>);
 
     const errors = await validate(entity, { skipMissingProperties: true });
     if (errors.length > 0) {
@@ -66,5 +66,9 @@ export class BaseService<TEntity extends IModel> {
 
     await this.repository.update({ uuid } as any, entity as any);
     return await this.read(uuid);
+  };
+
+  getColumns = (): Array<keyof TEntity> => {
+    return this.repository.metadata.columns.map(x => x.propertyName) as Array<keyof TEntity>;
   };
 }

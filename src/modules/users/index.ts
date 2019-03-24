@@ -1,2 +1,4 @@
 export { User } from './user.entity';
-export { UsersController } from './users.controller';
+export * from './users.controller';
+export * from './users.service';
+export * from './users.types';

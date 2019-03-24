@@ -1,21 +1,15 @@
-import { IsEmail, Length, IsOptional } from 'class-validator';
+import { IsEmail, IsOptional, Length } from 'class-validator';
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { provideRepository } from '~/ioc';
 import { IModel } from '~/modules/common';
 
-export interface IUserContent {
-  email: string;
-  firstName?: string;
-  lastName?: string;
-}
-
 @provideRepository(User)
 @Entity()
-export class User implements IModel, IUserContent {
+export class User implements IModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('uuid')
+  @Column({ name: 'uuid', readonly: true })
   @Index({ unique: true })
   uuid: string;
 
@@ -29,7 +23,14 @@ export class User implements IModel, IUserContent {
   @Column({ nullable: true })
   lastName?: string;
 
-  @Column()
   @IsEmail()
+  @Column()
+  @Index({ unique: true })
   email: string;
+
+  @Column({ select: false })
+  passwordHash: string;
+
+  @Column({ select: false })
+  salt: string;
 }

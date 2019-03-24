@@ -1,3 +1,5 @@
-export { IModel } from './model';
-export { UserError } from './UserError';
-export { ValidationError } from './ValidationError';
+export * from './model';
+export * from './UserError';
+export * from './ValidationError';
+export * from './BaseService';
+export * from './HttpStatus';

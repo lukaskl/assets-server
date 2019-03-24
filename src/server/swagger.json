@@ -13,9 +13,6 @@
 				"uuid": {
 					"type": "string"
 				},
-				"email": {
-					"type": "string"
-				},
 				"firstName": {
 					"type": "string",
 					"x-nullable": true
@@ -23,18 +20,32 @@
 				"lastName": {
 					"type": "string",
 					"x-nullable": true
+				},
+				"email": {
+					"type": "string"
+				},
+				"passwordHash": {
+					"type": "string"
+				},
+				"salt": {
+					"type": "string"
 				}
 			},
 			"required": [
 				"id",
 				"uuid",
-				"email"
+				"email",
+				"passwordHash",
+				"salt"
 			],
 			"type": "object"
 		},
-		"IUserContent": {
+		"UserCreateRequest": {
 			"properties": {
 				"email": {
+					"type": "string"
+				},
+				"password": {
 					"type": "string"
 				},
 				"firstName": {
@@ -47,13 +58,45 @@
 				}
 			},
 			"required": [
-				"email"
+				"email",
+				"password"
 			],
 			"type": "object"
 		},
-		"PartialIUserContent": {
-			"description": "Make all properties in T optional",
-			"properties": {},
+		"UserUpdateRequest": {
+			"properties": {
+				"email": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"password": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"firstName": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"lastName": {
+					"type": "string",
+					"x-nullable": true
+				}
+			},
+			"type": "object"
+		},
+		"AuthPayload": {
+			"properties": {
+				"email": {
+					"type": "string"
+				},
+				"password": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"email",
+				"password"
+			],
 			"type": "object"
 		}
 	},
@@ -80,7 +123,11 @@
 						}
 					}
 				},
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"default": 0,
@@ -116,14 +163,18 @@
 						}
 					}
 				},
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "body",
-						"name": "content",
+						"name": "request",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/IUserContent"
+							"$ref": "#/definitions/UserCreateRequest"
 						}
 					}
 				]
@@ -143,7 +194,11 @@
 						}
 					}
 				},
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -167,7 +222,11 @@
 						}
 					}
 				},
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -178,10 +237,10 @@
 					},
 					{
 						"in": "body",
-						"name": "content",
+						"name": "request",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/PartialIUserContent"
+							"$ref": "#/definitions/UserUpdateRequest"
 						}
 					}
 				]
@@ -200,7 +259,11 @@
 						}
 					}
 				},
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -211,12 +274,72 @@
 					}
 				]
 			}
+		},
+		"/auth/login": {
+			"post": {
+				"operationId": "Login",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "object"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "model",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AuthPayload"
+						}
+					}
+				]
+			}
+		},
+		"/auth/signup": {
+			"post": {
+				"operationId": "Signup",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/UserCreateRequest"
+						}
+					}
+				]
+			}
 		}
 	},
 	"produces": [
 		"application/json"
 	],
 	"swagger": "2.0",
-	"securityDefinitions": {},
+	"securityDefinitions": {
+		"jwt": {
+			"type": "apiKey",
+			"name": "authorization",
+			"in": "header"
+		}
+	},
 	"host": "localhost:3010"
 }

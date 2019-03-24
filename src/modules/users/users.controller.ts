@@ -1,13 +1,13 @@
 import { inject } from 'inversify';
 // eslint has a trouble to see that 'Query' is actually used ¯\_(ツ)_/¯
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Body, Delete, Get, Post, Put, Query, Route } from 'tsoa';
+import { Body, Delete, Get, Post, Put, Query, Route, Security } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
+import { assertIsValid, UserError } from '~/modules/common';
 
-import { UserError } from '../common';
-import { IUserContent, User } from './user.entity';
+import { User } from './user.entity';
 import { UserService } from './users.service';
-
+import { UserCreateRequest, UserUpdateRequest } from './users.types';
 @Route('users')
 @provideSingleton(UsersController)
 export class UsersController {
@@ -22,6 +22,7 @@ export class UsersController {
    * @maximum take 100
    */
   @Get()
+  @Security('jwt')
   public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<User[]> {
     return await this.service.readAll({ take, skip });
   }
@@ -31,6 +32,7 @@ export class UsersController {
    * @pattern uuid [0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}
    */
   @Get('{uuid}')
+  @Security('jwt')
   public async get(uuid: string): Promise<User> {
     const result = await this.service.read(uuid);
     if (!result) {
@@ -40,8 +42,10 @@ export class UsersController {
   }
 
   @Post()
-  public async create(@Body() content: IUserContent): Promise<User> {
-    const result = await this.service.create(content);
+  @Security('jwt')
+  public async create(@Body() request: UserCreateRequest): Promise<User> {
+    await assertIsValid(Object.assign(new UserCreateRequest(), request));
+    const result = await this.service.create(request, request.password);
     return result;
   }
 
@@ -50,8 +54,10 @@ export class UsersController {
    * @pattern uuid [0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}
    */
   @Put('{uuid}')
-  public async update(uuid: string, @Body() content: Partial<IUserContent>): Promise<User> {
-    const result = await this.service.update(uuid, content);
+  @Security('jwt')
+  public async update(uuid: string, @Body() request: UserUpdateRequest): Promise<User> {
+    await assertIsValid(Object.assign(new UserUpdateRequest(), request));
+    const result = await this.service.update(uuid, request, request.password);
     return result;
   }
 
@@ -61,6 +67,7 @@ export class UsersController {
    * @pattern uuid [0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}
    */
   @Delete('{uuid}')
+  @Security('jwt')
   public async delete(uuid: string): Promise<number> {
     const result = await this.service.delete(uuid);
     if (result.affected === 0) {

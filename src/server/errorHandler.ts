@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import { UserError, ValidationError } from '~/modules/common';
+import { UserError, ValidationError, HttpStatus } from '~/modules/common';
 import { ErrorRequestHandler } from 'express';
 import { ValidateError } from 'tsoa';
 
@@ -25,7 +25,12 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     console.error(`ERROR (${errId}):`, error.message);
     return res.status(error.responseCode).json({
       message: 'Validation error',
-      fields: error.errors,
+      fields: error.errors.map(x => ({
+        [x.property]: {
+          constraints: x.constraints,
+          value: x.value,
+        },
+      })),
       trackingId: errId,
     });
   }

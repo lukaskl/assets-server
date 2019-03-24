@@ -1,4 +1,4 @@
-import { ValidationError as CVValidationError } from 'class-validator';
+import { ValidationError as CVValidationError, validate, ValidatorOptions } from 'class-validator';
 
 export class ValidationError extends Error {
   constructor(
@@ -9,3 +9,10 @@ export class ValidationError extends Error {
     super(message);
   }
 }
+
+export const assertIsValid = async (model: {}, validatorOptions?: ValidatorOptions) => {
+  const errors = await validate(model, validatorOptions);
+  if (errors.length > 0) {
+    throw new ValidationError(errors);
+  }
+};
