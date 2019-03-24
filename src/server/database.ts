@@ -31,6 +31,7 @@ const ensureDatabaseExists = async ({ dbName, host, port, username, password }: 
       synchronize: false,
       logging: true,
       entities: [],
+      name: 'init',
     });
     const isDbExisting = (await connection.query(`SELECT 1 from pg_database WHERE datname='${dbName}'`)).length === 1;
     console.log(
