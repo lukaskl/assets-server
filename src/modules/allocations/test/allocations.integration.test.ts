@@ -5,6 +5,39 @@ import _ from 'lodash';
 import { BaseFixture, initTestContext, TestContext } from '~/modules/common/test';
 
 import { AllocationCreateRequest, AllocationUpdateRequest } from '../allocations.dto';
+import { Allocation } from '../allocation.entity';
+
+// the default difference between these two dates is 24 hours
+const getPayload = (
+  entities: BaseFixture,
+  addFromHours = 0,
+  addToHours = 0,
+  props: Array<keyof AllocationUpdateRequest> = [],
+): Partial<AllocationCreateRequest> => {
+  const payload = {
+    allocatedTo: entities.user.email,
+    assetUuid: entities.asset.uuid,
+    from: new Date(Date.parse('2020-03-25T15:00:00z') + addFromHours * 60 * 1000 * 60),
+    to: addToHours === null ? null : new Date(Date.parse('2020-03-26T15:00:00z') + addToHours * 60 * 1000 * 60),
+  };
+  return props.length === 0 ? payload : _.pick(payload, ...props);
+};
+
+const assertEntityAndPayloadMatch = (entity: Allocation, payload: Partial<AllocationCreateRequest>) => {
+  const propsFromEntity = {
+    allocatedTo: entity.allocatedTo.email,
+    assetUuid: entity.asset.uuid,
+    from: Date.parse((entity.from as any) as string),
+    to: entity.to ? Date.parse((entity.to as any) as string) : null,
+  };
+  const propsFromPayload = {
+    ...payload,
+    ...(payload.to ? { to: payload.to.getTime() } : {}),
+    ...(payload.from ? { from: payload.from.getTime() } : {}),
+  };
+
+  chai.expect(propsFromEntity).to.contain(propsFromPayload);
+};
 
 describe('Allocations Integration Tests', async () => {
   let context: TestContext;
@@ -37,14 +70,6 @@ describe('Allocations Integration Tests', async () => {
   });
 
   describe('Create', () => {
-    // the default difference between these two dates is 24 hours
-    const getPayload = (entities: BaseFixture, addFromHours = 0, addToHours = 0): AllocationCreateRequest => ({
-      allocatedTo: entities.user.email,
-      assetUuid: entities.asset.uuid,
-      from: new Date(Date.parse('2020-03-25T15:00:00z') + addFromHours * 60 * 1000 * 60),
-      to: addToHours === null ? null : new Date(Date.parse('2020-03-26T15:00:00z') + addToHours * 60 * 1000 * 60),
-    });
-
     let entities: BaseFixture;
     beforeEach(async () => {
       entities = await context.db.insertBaseFixture();
@@ -53,17 +78,17 @@ describe('Allocations Integration Tests', async () => {
       const allocation1 = await context.authClient.post('/allocations/', getPayload(entities));
       const allocation2 = await context.authClient.post('/allocations/', getPayload(entities, 48, 48));
       const allocation3 = await context.authClient.post('/allocations/', getPayload(entities, -48, -48));
-      chai.expect(allocation1).to.be.ok;
-      chai.expect(allocation2).to.be.ok;
-      chai.expect(allocation3).to.be.ok;
+      assertEntityAndPayloadMatch(allocation1.data, getPayload(entities));
+      assertEntityAndPayloadMatch(allocation2.data, getPayload(entities, 48, 48));
+      assertEntityAndPayloadMatch(allocation3.data, getPayload(entities, -48, -48));
     });
     it('create with infinitive allocations', async () => {
       const allocation1 = await context.authClient.post('/allocations/', getPayload(entities));
       const allocation2 = await context.authClient.post('/allocations/', getPayload(entities, 48, null));
       const allocation3 = await context.authClient.post('/allocations/', getPayload(entities, -48, -48));
-      chai.expect(allocation1).to.be.ok;
-      chai.expect(allocation2).to.be.ok;
-      chai.expect(allocation3).to.be.ok;
+      assertEntityAndPayloadMatch(allocation1.data, getPayload(entities));
+      assertEntityAndPayloadMatch(allocation2.data, getPayload(entities, 48, null));
+      assertEntityAndPayloadMatch(allocation3.data, getPayload(entities, -48, -48));
     });
     const tests = [
       { when: 'range is equal', addFrom1: 0, addTo1: 0, addFrom2: 0, addTo2: 0 },
@@ -86,22 +111,6 @@ describe('Allocations Integration Tests', async () => {
   });
 
   describe('Update', () => {
-    // the default difference between these two dates is 24 hours
-    const getPayload = (
-      entities: BaseFixture,
-      props: Array<keyof AllocationUpdateRequest> = [],
-      addFromHours = 0,
-      addToHours = 0,
-    ): AllocationCreateRequest => {
-      const payload = {
-        allocatedTo: entities.user.email,
-        assetUuid: entities.asset.uuid,
-        from: new Date(Date.parse('2020-03-25T15:00:00z') + addFromHours * 60 * 1000 * 60),
-        to: addToHours === null ? null : new Date(Date.parse('2020-03-26T15:00:00z') + addToHours * 60 * 1000 * 60),
-      };
-      return props.length === 0 ? payload : _.pick(payload, ...props);
-    };
-
     let entities1: BaseFixture;
     let entities2: BaseFixture;
     beforeEach(async () => {
@@ -121,9 +130,9 @@ describe('Allocations Integration Tests', async () => {
       it(`update allocation, changing '${prop.join(', ')}'`, async () => {
         const res1 = await context.authClient.post('/allocations/', getPayload(entities1));
         const { uuid } = res1.data;
-        const res2 = await context.authClient.put('/allocations/' + uuid, getPayload(entities2, prop));
-        chai.expect(res1).to.be.ok;
-        chai.expect(res2).to.be.ok;
+        const res2 = await context.authClient.put('/allocations/' + uuid, getPayload(entities2, 0, 0, prop));
+        assertEntityAndPayloadMatch(res1.data, getPayload(entities1));
+        assertEntityAndPayloadMatch(res2.data, getPayload(entities2, 0, 0, prop));
       });
     });
 
@@ -132,7 +141,7 @@ describe('Allocations Integration Tests', async () => {
       const allocation2 = await context.authClient.post('/allocations/', getPayload(entities2));
 
       const { uuid } = allocation2.data;
-      const updateRequest = context.authClient.put('/allocations/' + uuid, getPayload(entities1, ['assetUuid']));
+      const updateRequest = context.authClient.put('/allocations/' + uuid, getPayload(entities1, 0, 0, ['assetUuid']));
       await chai.expect(updateRequest).eventually.to.be.rejectedWith('Request failed with status code 409');
     });
 
@@ -154,13 +163,13 @@ describe('Allocations Integration Tests', async () => {
     ];
     tests.forEach(test => {
       it(`should not allow to create allocation when ${test.when}`, async () => {
-        await context.authClient.post('/allocations/', getPayload(entities1, [], test.addFrom1, test.addTo1));
+        await context.authClient.post('/allocations/', getPayload(entities1, test.addFrom1, test.addTo1, []));
 
-        const allocation = await context.authClient.post('/allocations/', getPayload(entities1, [], -100, -100));
+        const allocation = await context.authClient.post('/allocations/', getPayload(entities1, -100, -100, []));
 
         const updateRequest = context.authClient.put(
           '/allocations/' + allocation.data.uuid,
-          getPayload(entities1, ['to', 'from'], test.addFrom2, test.addTo2),
+          getPayload(entities1, test.addFrom2, test.addTo2, ['to', 'from']),
         );
 
         await chai.expect(updateRequest).eventually.to.be.rejectedWith('Request failed with status code 409');

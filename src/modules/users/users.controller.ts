@@ -56,7 +56,7 @@ export class UsersController {
   @Security('jwt')
   public async update(uuid: string, @Body() request: UserUpdateRequest): Promise<UserResponse> {
     await assertIsValid(Object.assign(new UserUpdateRequest(), request));
-    const result = await this.service.update(uuid, request, request.password);
+    const result = await this.service.update(uuid, request, {}, {}, request.password);
     return result;
   }
 

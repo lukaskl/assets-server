@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Repository, FindOneOptions, SaveOptions } from 'typeorm';
 import { injectRepository, provide } from '~/ioc';
 import { BaseService } from '~/modules/common';
 
@@ -7,8 +7,8 @@ import { User } from './user.entity';
 
 @provide(UserService)
 export class UserService extends BaseService<User> {
-  private baseCreate: UserService['create'] = this.create;
-  private baseUpdate: UserService['update'] = this.update;
+  private baseCreate: BaseService<User>['create'] = this.create;
+  private baseUpdate: BaseService<User>['update'] = this.update;
   constructor(@injectRepository(User) repository: Repository<User>) {
     super(repository);
   }
@@ -29,13 +29,19 @@ export class UserService extends BaseService<User> {
     return await this.baseCreate(entity);
   };
 
-  update = async (uuid: string, model: DeepPartial<User>, password?: string) => {
+  update = async (
+    uuid: string,
+    model: DeepPartial<User>,
+    saveOption: SaveOptions = {},
+    findOptions: FindOneOptions<User> = {},
+    password?: string,
+  ) => {
     const entity = this.repository.create(model);
     if (password) {
       entity.salt = await bcrypt.genSalt();
       entity.passwordHash = await this.getHash(password, entity.salt);
     }
-    return await this.baseUpdate(uuid, entity);
+    return await this.baseUpdate(uuid, entity, saveOption, findOptions);
   };
 
   async getHash(password: string, salt: string): Promise<string> {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { DeepPartial, Repository, FindOneOptions } from 'typeorm';
+import { DeepPartial, Repository, FindOneOptions, SaveOptions } from 'typeorm';
 import uuid from 'uuid/v4';
 
 import { IModel, UserError } from '../common';
@@ -63,7 +63,12 @@ export class BaseService<TEntity extends IModel> {
     return await this.repository.delete({ uuid } as any);
   };
 
-  update = async (uuid: string, model: Partial<TEntity>) => {
+  update = async (
+    uuid: string,
+    model: Partial<TEntity>,
+    saveOption: SaveOptions = {},
+    findOptions: FindOneOptions<TEntity> = {},
+  ) => {
     if (!isUuid(uuid)) {
       throw new UserError(400, 'invalid uuid');
     }
@@ -72,8 +77,8 @@ export class BaseService<TEntity extends IModel> {
 
     await assertIsValid(entity, { skipMissingProperties: true });
 
-    await this.repository.update({ uuid } as any, entity as any);
-    return await this.read(uuid);
+    await this.repository.update({ uuid } as any, entity as any, saveOption);
+    return await this.read(uuid, findOptions);
   };
 
   getColumns = (): Array<keyof TEntity> => {

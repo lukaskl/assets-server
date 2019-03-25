@@ -114,7 +114,7 @@ export class AllocationService implements AllocationBaseServiceKeys {
       entityBefore.uuid,
     );
 
-    const updated = await this.baseService.update(uuid, entity);
+    const updated = await this.baseService.update(uuid, entity, {}, { relations: ['allocatedTo', 'asset'] });
     return Object.assign(new Allocation(), entity, updated);
   };
 
