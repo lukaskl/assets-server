@@ -20,11 +20,11 @@ export class Allocation implements IModel {
   @ManyToOne(() => require('../assets').Asset, (other: Asset) => other.allocations, { onDelete: 'CASCADE' })
   asset: Asset;
 
-  @Column({ type: 'timestamp with time zone' })
+  @Column({ type: 'timestamptz' })
   @Index({ unique: false })
   from: Date;
 
-  @Column({ type: 'timestamp with time zone', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   @Index({ unique: false })
   to?: Date;
 }

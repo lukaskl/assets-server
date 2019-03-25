@@ -3,7 +3,7 @@ import { inject } from 'inversify';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Body, Delete, Get, Post, Put, Query, Route, Security } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
-import { assertIsValid, UserError } from '~/modules/common';
+import { assertIsValid, UserError, isUuid, HttpStatus, isEmail } from '~/modules/common';
 
 import { AllocationService } from './allocations.service';
 import { AllocationCreateRequest, AllocationUpdateRequest, AllocationResponse } from './allocations.dto';
@@ -23,8 +23,25 @@ export class AllocationsController {
    */
   @Get()
   @Security('jwt')
-  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<AllocationResponse[]> {
-    return await this.service.readAll({ take, skip });
+  public async getAll(
+    @Query() userEmail?: string,
+    @Query() assetUuid?: string,
+    @Query() onlyCurrent = false,
+    @Query() skip: number = 0,
+    @Query() take: number = 100,
+  ): Promise<AllocationResponse[]> {
+    if (userEmail && !isEmail(userEmail)) {
+      throw new UserError(HttpStatus.BAD_REQUEST, `userEmail '${userEmail}' is a not valid email`);
+    }
+    if (assetUuid && !isUuid(assetUuid)) {
+      throw new UserError(HttpStatus.BAD_REQUEST, `assetUuid '${assetUuid}' is a not valid uuid`);
+    }
+    return await this.service.readAll({
+      assetUuid,
+      userEmail,
+      onlyCurrent,
+      pagination: { skip, take },
+    });
   }
 
   /**
@@ -36,7 +53,7 @@ export class AllocationsController {
   public async get(uuid: string): Promise<AllocationResponse> {
     const result = await this.service.read(uuid);
     if (!result) {
-      throw new UserError(404, `Allocation with uuid '${uuid}' was not found`);
+      throw new UserError(HttpStatus.NOT_FOUND, `Allocation with uuid '${uuid}' was not found`);
     }
     return result;
   }

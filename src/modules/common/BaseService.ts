@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Repository, FindOneOptions } from 'typeorm';
 import uuid from 'uuid/v4';
 
 import { IModel, UserError } from '../common';
@@ -13,30 +13,37 @@ export interface IPagination {
   take?: number;
 }
 
-const MAX_PAGINATION = 100;
+export const MAX_PAGINATION = 100;
+
+export const parsePagination = ({ skip = 0, take = MAX_PAGINATION }: IPagination) => {
+  skip = Math.max(0, skip);
+  take = Math.min(take <= 0 ? MAX_PAGINATION : take, MAX_PAGINATION);
+  return { skip, take };
+};
 
 @injectable()
 export class BaseService<TEntity extends IModel> {
   constructor(protected readonly repository: Repository<TEntity>) {}
 
-  readAll = async ({ skip = 0, take = MAX_PAGINATION }: IPagination = {}) => {
-    skip = Math.max(0, skip);
-    take = Math.min(take <= 0 ? MAX_PAGINATION : take, MAX_PAGINATION);
+  readAll = async (pagination: IPagination = {}, findOptions: FindOneOptions<TEntity> = {}) => {
     const result = await this.repository.find({
-      skip,
-      take,
+      ...parsePagination(pagination),
+      ...findOptions,
     });
     return result;
   };
 
-  read = async (uuid: string) => {
+  read = async (uuid: string, options: FindOneOptions<TEntity> = {}) => {
     if (!isUuid(uuid)) {
       throw new UserError(400, 'invalid uuid');
     }
+    const { where, ...rest } = options;
     return this.repository.findOne({
       where: {
         uuid,
+        ...(where as {}),
       },
+      ...rest,
     });
   };
 

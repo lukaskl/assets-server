@@ -81,10 +81,28 @@ const models: TsoaRoute.Models = {
         },
     },
     "AllocationResponse": {
+        "properties": {
+            "asset": { "ref": "AssetResponse", "required": true },
+            "allocatedTo": { "ref": "UserResponse" },
+            "from": { "dataType": "datetime" },
+            "to": { "dataType": "datetime" },
+        },
     },
     "AllocationCreateRequest": {
+        "properties": {
+            "allocatedTo": { "dataType": "string", "required": true },
+            "assetUuid": { "dataType": "string", "required": true },
+            "from": { "dataType": "datetime", "required": true },
+            "to": { "dataType": "datetime" },
+        },
     },
     "AllocationUpdateRequest": {
+        "properties": {
+            "allocatedTo": { "dataType": "string" },
+            "assetUuid": { "dataType": "string" },
+            "from": { "dataType": "datetime" },
+            "to": { "dataType": "datetime" },
+        },
     },
 };
 const validationService = new ValidationService(models);
@@ -489,6 +507,9 @@ export function RegisterRoutes(app: express.Express) {
         authenticateMiddleware([{ "jwt": [] }]),
         function(request: any, response: any, next: any) {
             const args = {
+                userEmail: { "in": "query", "name": "userEmail", "dataType": "string" },
+                assetUuid: { "in": "query", "name": "assetUuid", "dataType": "string" },
+                onlyCurrent: { "default": false, "in": "query", "name": "onlyCurrent", "dataType": "boolean" },
                 skip: { "default": 0, "in": "query", "name": "skip", "dataType": "integer", "validators": { "isInt": { "errorMsg": "skip" }, "minimum": { "value": 0 } } },
                 take: { "default": 100, "in": "query", "name": "take", "dataType": "integer", "validators": { "isInt": { "errorMsg": "take" }, "minimum": { "value": 0 }, "maximum": { "value": 100 } } },
             };

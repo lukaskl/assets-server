@@ -11,7 +11,7 @@ npm i -g yarn
 yarn install
 ```
 
-## start in development:
+## Start in development:
 
 Run:
 ```

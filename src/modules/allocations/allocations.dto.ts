@@ -1,31 +1,68 @@
-// import { IsEmail, Length, IsOptional } from 'class-validator';
+import { IsDate, IsEmail, IsOptional, IsUUID } from 'class-validator';
+
+import { AssetResponse } from '~/modules/assets';
+import { UserResponse } from '~/modules/users';
 
 export class AllocationCreateRequest {
-  // @IsEmail()
-  // email: string;
-  // @Length(6, 50)
-  // password: string;
-  // @Length(2, 100)
-  // firstName?: string;
-  // @Length(2, 100)
-  // lastName?: string;
+  /**
+   * Email of the user
+   */
+  @IsEmail()
+  allocatedTo: string;
+
+  /**
+   * uuid of the asset
+   */
+  @IsUUID('4')
+  assetUuid: string;
+
+  /**
+   * date with a timezone
+   */
+  @IsDate()
+  from: Date;
+
+  /**
+   * date with a timezone
+   */
+  @IsDate()
+  @IsOptional()
+  to?: Date;
 }
 
 export class AllocationUpdateRequest {
-  // @IsEmail()
-  // @IsOptional()
-  // email?: string;
-  // @Length(6, 50)
-  // @IsOptional()
-  // password?: string;
-  // @Length(2, 100)
-  // @IsOptional()
-  // firstName?: string;
-  // @Length(2, 100)
-  // @IsOptional()
-  // lastName?: string;
+  /**
+   * Email of the user
+   */
+  @IsEmail()
+  @IsOptional()
+  allocatedTo?: string;
+
+  /**
+   * uuid of the asset
+   */
+  @IsUUID('4')
+  @IsOptional()
+  assetUuid?: string;
+
+  /**
+   * date with a timezone
+   */
+  @IsDate()
+  @IsOptional()
+  from?: Date;
+
+  /**
+   * date with a timezone
+   */
+  @IsDate()
+  @IsOptional()
+  to?: Date;
 }
 
 export class AllocationResponse {
-  // email?: string;
+  asset: AssetResponse;
+  allocatedTo?: UserResponse;
+  from?: Date;
+  to?: Date;
 }

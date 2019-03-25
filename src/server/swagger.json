@@ -200,15 +200,84 @@
 			"type": "object"
 		},
 		"AllocationResponse": {
-			"properties": {},
+			"properties": {
+				"asset": {
+					"$ref": "#/definitions/AssetResponse"
+				},
+				"allocatedTo": {
+					"$ref": "#/definitions/UserResponse",
+					"x-nullable": true
+				},
+				"from": {
+					"type": "string",
+					"format": "date-time",
+					"x-nullable": true
+				},
+				"to": {
+					"type": "string",
+					"format": "date-time",
+					"x-nullable": true
+				}
+			},
+			"required": [
+				"asset"
+			],
 			"type": "object"
 		},
 		"AllocationCreateRequest": {
-			"properties": {},
+			"properties": {
+				"allocatedTo": {
+					"type": "string",
+					"description": "Email of the user"
+				},
+				"assetUuid": {
+					"type": "string",
+					"description": "uuid of the asset"
+				},
+				"from": {
+					"type": "string",
+					"format": "date-time",
+					"description": "date with a timezone"
+				},
+				"to": {
+					"type": "string",
+					"format": "date-time",
+					"description": "date with a timezone",
+					"x-nullable": true
+				}
+			},
+			"required": [
+				"allocatedTo",
+				"assetUuid",
+				"from"
+			],
 			"type": "object"
 		},
 		"AllocationUpdateRequest": {
-			"properties": {},
+			"properties": {
+				"allocatedTo": {
+					"type": "string",
+					"description": "Email of the user",
+					"x-nullable": true
+				},
+				"assetUuid": {
+					"type": "string",
+					"description": "uuid of the asset",
+					"x-nullable": true
+				},
+				"from": {
+					"type": "string",
+					"format": "date-time",
+					"description": "date with a timezone",
+					"x-nullable": true
+				},
+				"to": {
+					"type": "string",
+					"format": "date-time",
+					"description": "date with a timezone",
+					"x-nullable": true
+				}
+			},
 			"type": "object"
 		}
 	},
@@ -804,6 +873,25 @@
 					}
 				],
 				"parameters": [
+					{
+						"in": "query",
+						"name": "userEmail",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "assetUuid",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"default": false,
+						"in": "query",
+						"name": "onlyCurrent",
+						"required": false,
+						"type": "boolean"
+					},
 					{
 						"default": 0,
 						"in": "query",

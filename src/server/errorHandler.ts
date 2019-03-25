@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import { ErrorRequestHandler } from 'express';
 import { ValidateError } from 'tsoa';
 import uuid from 'uuid/v4';
-import { UserError, ValidationError } from '~/modules/common';
+import { UserError, ValidationError, HttpStatus } from '~/modules/common';
 
 // Error-handling middleware always takes four arguments
 // https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
@@ -9,9 +11,18 @@ import { UserError, ValidationError } from '~/modules/common';
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   const errId = uuid();
 
+  if (err.constructor.name === 'TokenExpiredError') {
+    console.error(`ERROR (${errId}):`, err.message);
+    return res.status(HttpStatus.UNAUTHORIZED).json({
+      message: err.message,
+      trackingId: errId,
+      expiredAt: (err as any).expiredAt,
+    });
+  }
+
   if (err.constructor.name === 'UserError') {
     const error = err as UserError;
-    // eslint-disable-next-line no-console
+
     console.error(`ERROR (${errId}):`, error.message);
     return res.status(error.responseCode).json({
       message: error.message,
@@ -21,7 +32,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
   if (err.constructor.name === 'ValidationError') {
     const error = err as ValidationError;
-    // eslint-disable-next-line no-console
+
     console.error(`ERROR (${errId}):`, error.message);
     return res.status(error.responseCode).json({
       message: 'Validation error',
@@ -36,7 +47,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   }
   if (err.constructor.name === 'ValidateError') {
     const error = err as ValidateError;
-    // eslint-disable-next-line no-console
+
     console.error(`ERROR (${errId}):`, error.message);
     return res.status(error.status).json({
       message: 'Validation error',
@@ -45,7 +56,6 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     });
   }
 
-  // eslint-disable-next-line no-console
   console.error(`ERROR (${errId}):`, err);
   return res.status(500).json({
     message: 'Internal server Error',
