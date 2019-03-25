@@ -49,42 +49,52 @@ export class AllocationService implements AllocationBaseServiceKeys {
     pagination = parsePagination(pagination);
     let builder = this.repository.createQueryBuilder('allocation');
 
-    if (userEmail) {
-      builder = builder.innerJoin('allocation.allocatedTo', 'user', 'user.email = :email', { email: userEmail });
-    }
-
-    if (assetUuid) {
-      builder = builder.innerJoin('allocation.asset', 'asset', 'asset.uuid = :assetUuid', { assetUuid });
-    }
-
+    builder = builder.innerJoinAndSelect('allocation.allocatedTo', 'user');
     const whereClauses = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereParams: { [key: string]: any } = {};
+    if (userEmail) {
+      whereClauses.push('user.email = :email');
+      whereParams.email = userEmail;
+    }
+
+    builder = builder.innerJoinAndSelect('allocation.asset', 'asset');
+    if (assetUuid) {
+      whereClauses.push('asset.uuid = :assetUuid');
+      whereParams.assetUuid = assetUuid;
+    }
+
     if (onlyCurrent) {
       whereClauses.push('allocation.from < now() AND (allocation.to IS NULL OR allocation.to > now())');
     }
 
     if (excludeUuid) {
-      whereClauses.push(`allocation.uuid <> '${excludeUuid}'`);
+      whereClauses.push(`allocation.uuid <> :excludeUuid`);
+      whereParams.excludeUuid = excludeUuid;
     }
 
     if (withingRange.from || withingRange.to) {
       const { from, to } = withingRange;
       if (from) {
-        whereClauses.push(`allocation.to IS NULL OR allocation.to >= '${from.toISOString()}'`);
+        whereClauses.push(`allocation.to IS NULL OR allocation.to >= :from`);
+        whereParams.from = from.toISOString();
       }
       if (to) {
-        whereClauses.push(`allocation.from <= '${to.toISOString()}'`);
+        whereClauses.push(`allocation.from <= :to`);
+        whereParams.to = to.toISOString();
       }
     }
 
     if (whereClauses.length > 0) {
-      builder = builder.where(`(${whereClauses.join(') AND (')})`);
+      builder = builder.where(`(${whereClauses.join(') AND (')})`, whereParams);
     }
 
-    return await builder
+    const result = await builder
       .skip(pagination.skip)
       .take(pagination.take)
       .orderBy('allocation.from', 'DESC')
       .getMany();
+    return result;
   };
 
   create = async (model: AllocationCreateRequest): Promise<Allocation> => {

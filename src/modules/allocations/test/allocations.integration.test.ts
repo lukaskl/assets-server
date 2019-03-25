@@ -4,8 +4,8 @@ import chai from 'chai';
 import _ from 'lodash';
 import { BaseFixture, initTestContext, TestContext } from '~/modules/common/test';
 
-import { AllocationCreateRequest, AllocationUpdateRequest } from '../allocations.dto';
 import { Allocation } from '../allocation.entity';
+import { AllocationCreateRequest, AllocationUpdateRequest } from '../allocations.dto';
 
 // the default difference between these two dates is 24 hours
 const getPayload = (
