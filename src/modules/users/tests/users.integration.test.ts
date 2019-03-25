@@ -1,29 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { initTestServer } from '~/modules/common/test';
-import { UserService } from '../users.service';
-import { User } from '../user.entity';
-import { Repository } from 'typeorm';
 import chai from 'chai';
 import _ from 'lodash';
+import { initTestContext, TestContext } from '~/modules/common/test';
 
-const clearTable = async <T>(repository: Repository<T>) => {
-  await repository.query(`DELETE FROM "${repository.metadata.tableName}"`);
-};
+import { User } from '../user.entity';
 
 describe('Users Integration Tests', async () => {
-  let testServer: Unpacked<ReturnType<typeof initTestServer>>;
-  let userService: UserService;
-  let userRepository: Repository<User>;
+  let context: TestContext;
   before(async function() {
     this.timeout(15000);
-    testServer = await initTestServer();
-    userRepository = testServer.getRepository(User);
-    userService = new UserService(userRepository);
-    await clearTable(userRepository);
+    context = await initTestContext();
+    await context.db.clear.user();
   });
 
   afterEach(async () => {
-    await clearTable(userRepository);
+    await context.db.clear.user();
   });
 
   describe('Create', () => {
@@ -37,9 +28,9 @@ describe('Users Integration Tests', async () => {
       let userDto: any;
       let userEntity: User;
       before(async () => {
-        const response = await testServer.authClient.post('/users/', payload);
+        const response = await context.authClient.post('/users/', payload);
         userDto = response.data;
-        userEntity = await userService.readByEmail('test@test.com', true);
+        userEntity = await context.service.user.readByEmail('test@test.com', true);
       });
 
       it('should get back created user', () => {
@@ -64,7 +55,7 @@ describe('Users Integration Tests', async () => {
 
     it('requires authentication', async () => {
       await chai
-        .expect(testServer.client.post('/users/', payload))
+        .expect(context.client.post('/users/', payload))
         .eventually.rejectedWith('Request failed with status code 401');
     });
   });
