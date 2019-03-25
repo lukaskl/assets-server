@@ -1,31 +1,30 @@
-// import { IsEmail, Length, IsOptional } from 'class-validator';
-
-// The copy pasting of DTO objects is necessary, so that swagger
-// would be able to pick up the types
-// type manipulation like Partial<Asset> does not work :/
+import { Length, IsOptional } from 'class-validator';
+import { AssetTypeResponse } from '~/modules/assetTypes';
 
 export class AssetCreateRequest {
-  // @IsEmail()
-  // email: string;
-  // @Length(6, 50)
-  // password: string;
-  // @Length(2, 100)
-  // firstName?: string;
-  // @Length(2, 100)
-  // lastName?: string;
+  @Length(2, 100)
+  typeCode: string;
+
+  @Length(2, 100)
+  name: string;
+
+  attributeValues: { [key: string]: string };
 }
 
 export class AssetUpdateRequest {
-  // @IsEmail()
-  // @IsOptional()
-  // email?: string;
-  // @Length(6, 50)
-  // @IsOptional()
-  // password?: string;
-  // @Length(2, 100)
-  // @IsOptional()
-  // firstName?: string;
-  // @Length(2, 100)
-  // @IsOptional()
-  // lastName?: string;
+  @Length(2, 100)
+  @IsOptional()
+  typeCode?: string;
+
+  @Length(2, 100)
+  @IsOptional()
+  name?: string;
+
+  attributeValues?: { [key: string]: string };
+}
+
+export class AssetResponse {
+  name: string;
+  type: AssetTypeResponse;
+  attributeValues: { [key: string]: string };
 }

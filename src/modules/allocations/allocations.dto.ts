@@ -1,9 +1,5 @@
 // import { IsEmail, Length, IsOptional } from 'class-validator';
 
-// The copy pasting of DTO objects is necessary, so that swagger
-// would be able to pick up the types
-// type manipulation like Partial<Allocation> does not work :/
-
 export class AllocationCreateRequest {
   // @IsEmail()
   // email: string;
@@ -28,4 +24,8 @@ export class AllocationUpdateRequest {
   // @Length(2, 100)
   // @IsOptional()
   // lastName?: string;
+}
+
+export class AllocationResponse {
+  // email?: string;
 }

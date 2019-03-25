@@ -19,4 +19,12 @@ export class AssetTypeService extends BaseService<AssetType> {
   update = async (uuid: string, model: DeepPartial<AssetType>) => {
     return await this.baseUpdate(uuid, model);
   };
+
+  readByCode = async (code: string) => {
+    return this.repository.findOne({
+      where: {
+        code,
+      },
+    });
+  };
 }

@@ -1,8 +1,8 @@
 import { Length } from 'class-validator';
-import { Column, Entity, Index, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { provideRepository } from '~/ioc';
+import { Asset } from '~/modules/assets';
 import { IModel } from '~/modules/common';
-import { Asset } from '../assets/asset.entity';
 
 @provideRepository(AssetType)
 @Entity()

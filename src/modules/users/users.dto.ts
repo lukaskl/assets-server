@@ -1,9 +1,5 @@
 import { IsEmail, Length, IsOptional } from 'class-validator';
 
-// The copy pasting of DTO objects is necessary, so that swagger
-// would be able to pick up the types
-// type manipulation like Partial<User> does not work :/
-
 export class UserCreateRequest {
   @IsEmail()
   email: string;
@@ -33,5 +29,12 @@ export class UserUpdateRequest {
 
   @Length(2, 100)
   @IsOptional()
+  lastName?: string;
+}
+
+export class UserResponse {
+  uuid: string;
+  email: string;
+  firstName?: string;
   lastName?: string;
 }

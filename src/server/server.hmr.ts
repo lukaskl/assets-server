@@ -17,8 +17,14 @@ export const initServer = async (dbConfig: IDbInitConfig, serverPort: number) =>
 
   // Hot module reloading exists only during the development build
   if (module.hot) {
-    module.hot.accept(['./server'], async () => {
+    module.hot.accept(['./server', './database'], async () => {
       try {
+        // replace the connection
+        dbConnection.db.close();
+        dbConnection = await require('./database').initDb(dbConfig);
+        iocContainer.unbind(TYPES.DB);
+        iocContainer.bind(TYPES.DB).toConstantValue(dbConnection);
+        // replace the server
         server.removeListener('request', app);
         const { default: nextApp } = await import('./server');
         app = nextApp();

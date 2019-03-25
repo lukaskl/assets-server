@@ -5,9 +5,8 @@ import { Body, Delete, Get, Post, Put, Query, Route, Security } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
 import { assertIsValid, UserError } from '~/modules/common';
 
-import { Allocation } from './allocation.entity';
 import { AllocationService } from './allocations.service';
-import { AllocationCreateRequest, AllocationUpdateRequest } from './allocations.dto';
+import { AllocationCreateRequest, AllocationUpdateRequest, AllocationResponse } from './allocations.dto';
 
 @Route('allocations')
 @provideSingleton(AllocationsController)
@@ -24,7 +23,7 @@ export class AllocationsController {
    */
   @Get()
   @Security('jwt')
-  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<Allocation[]> {
+  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<AllocationResponse[]> {
     return await this.service.readAll({ take, skip });
   }
 
@@ -34,7 +33,7 @@ export class AllocationsController {
    */
   @Get('{uuid}')
   @Security('jwt')
-  public async get(uuid: string): Promise<Allocation> {
+  public async get(uuid: string): Promise<AllocationResponse> {
     const result = await this.service.read(uuid);
     if (!result) {
       throw new UserError(404, `Allocation with uuid '${uuid}' was not found`);
@@ -44,7 +43,7 @@ export class AllocationsController {
 
   @Post()
   @Security('jwt')
-  public async create(@Body() request: AllocationCreateRequest): Promise<Allocation> {
+  public async create(@Body() request: AllocationCreateRequest): Promise<AllocationResponse> {
     await assertIsValid(Object.assign(new AllocationCreateRequest(), request));
     const result = await this.service.create(request);
     return result;
@@ -56,7 +55,7 @@ export class AllocationsController {
    */
   @Put('{uuid}')
   @Security('jwt')
-  public async update(uuid: string, @Body() request: AllocationUpdateRequest): Promise<Allocation> {
+  public async update(uuid: string, @Body() request: AllocationUpdateRequest): Promise<AllocationResponse> {
     await assertIsValid(Object.assign(new AllocationUpdateRequest(), request));
     const result = await this.service.update(uuid, request);
     return result;

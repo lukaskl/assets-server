@@ -3,19 +3,19 @@ import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute } 
 import { iocContainer } from './../ioc/container';
 import { UsersController } from './../modules/users/users.controller';
 import { AuthController } from './../modules/auth/auth.controller';
+import { AssetsController } from './../modules/assets/assets.controller';
+import { AssetTypesController } from './../modules/assetTypes/assetTypes.controller';
+import { AllocationsController } from './../modules/allocations/allocations.controller';
 import { expressAuthentication } from './authentication';
 import * as express from 'express';
 
 const models: TsoaRoute.Models = {
-    "User": {
+    "UserResponse": {
         "properties": {
-            "id": { "dataType": "double", "required": true },
             "uuid": { "dataType": "string", "required": true },
+            "email": { "dataType": "string", "required": true },
             "firstName": { "dataType": "string" },
             "lastName": { "dataType": "string" },
-            "email": { "dataType": "string", "required": true },
-            "passwordHash": { "dataType": "string", "required": true },
-            "salt": { "dataType": "string", "required": true },
         },
     },
     "UserCreateRequest": {
@@ -39,6 +39,52 @@ const models: TsoaRoute.Models = {
             "email": { "dataType": "string", "required": true },
             "password": { "dataType": "string", "required": true },
         },
+    },
+    "AssetTypeResponse": {
+        "properties": {
+            "uuid": { "dataType": "string", "required": true },
+            "code": { "dataType": "string", "required": true },
+            "attributes": { "dataType": "array", "array": { "dataType": "string" }, "required": true },
+        },
+    },
+    "AssetResponse": {
+        "properties": {
+            "name": { "dataType": "string", "required": true },
+            "type": { "ref": "AssetTypeResponse", "required": true },
+            "attributeValues": { "dataType": "any", "required": true },
+        },
+    },
+    "AssetCreateRequest": {
+        "properties": {
+            "typeCode": { "dataType": "string", "required": true },
+            "name": { "dataType": "string", "required": true },
+            "attributeValues": { "dataType": "any", "required": true },
+        },
+    },
+    "AssetUpdateRequest": {
+        "properties": {
+            "typeCode": { "dataType": "string" },
+            "name": { "dataType": "string" },
+            "attributeValues": { "dataType": "any" },
+        },
+    },
+    "AssetTypeCreateRequest": {
+        "properties": {
+            "code": { "dataType": "string", "required": true },
+            "attributes": { "dataType": "array", "array": { "dataType": "string" }, "required": true },
+        },
+    },
+    "AssetTypeUpdateRequest": {
+        "properties": {
+            "code": { "dataType": "string", "required": true },
+            "attributes": { "dataType": "array", "array": { "dataType": "string" }, "required": true },
+        },
+    },
+    "AllocationResponse": {
+    },
+    "AllocationCreateRequest": {
+    },
+    "AllocationUpdateRequest": {
     },
 };
 const validationService = new ValidationService(models);
@@ -203,6 +249,357 @@ export function RegisterRoutes(app: express.Express) {
 
 
             const promise = controller.signup.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/assets',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                skip: { "default": 0, "in": "query", "name": "skip", "dataType": "integer", "validators": { "isInt": { "errorMsg": "skip" }, "minimum": { "value": 0 } } },
+                take: { "default": 100, "in": "query", "name": "take", "dataType": "integer", "validators": { "isInt": { "errorMsg": "take" }, "minimum": { "value": 0 }, "maximum": { "value": 100 } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetsController>(AssetsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.getAll.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/assets/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetsController>(AssetsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.get.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.post('/assets',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                request: { "in": "body", "name": "request", "required": true, "ref": "AssetCreateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetsController>(AssetsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.create.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.put('/assets/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+                request: { "in": "body", "name": "request", "required": true, "ref": "AssetUpdateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetsController>(AssetsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.update.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.delete('/assets/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetsController>(AssetsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.delete.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/assetTypes',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                skip: { "default": 0, "in": "query", "name": "skip", "dataType": "integer", "validators": { "isInt": { "errorMsg": "skip" }, "minimum": { "value": 0 } } },
+                take: { "default": 100, "in": "query", "name": "take", "dataType": "integer", "validators": { "isInt": { "errorMsg": "take" }, "minimum": { "value": 0 }, "maximum": { "value": 100 } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetTypesController>(AssetTypesController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.getAll.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/assetTypes/:uuidOrCode',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuidOrCode: { "in": "path", "name": "uuidOrCode", "required": true, "dataType": "string", "validators": { "minLength": { "value": 2 } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetTypesController>(AssetTypesController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.get.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.post('/assetTypes',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                request: { "in": "body", "name": "request", "required": true, "ref": "AssetTypeCreateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetTypesController>(AssetTypesController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.create.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.put('/assetTypes/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+                request: { "in": "body", "name": "request", "required": true, "ref": "AssetTypeUpdateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetTypesController>(AssetTypesController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.update.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.delete('/assetTypes/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AssetTypesController>(AssetTypesController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.delete.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/allocations',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                skip: { "default": 0, "in": "query", "name": "skip", "dataType": "integer", "validators": { "isInt": { "errorMsg": "skip" }, "minimum": { "value": 0 } } },
+                take: { "default": 100, "in": "query", "name": "take", "dataType": "integer", "validators": { "isInt": { "errorMsg": "take" }, "minimum": { "value": 0 }, "maximum": { "value": 100 } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AllocationsController>(AllocationsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.getAll.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/allocations/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AllocationsController>(AllocationsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.get.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.post('/allocations',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                request: { "in": "body", "name": "request", "required": true, "ref": "AllocationCreateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AllocationsController>(AllocationsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.create.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.put('/allocations/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+                request: { "in": "body", "name": "request", "required": true, "ref": "AllocationUpdateRequest" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AllocationsController>(AllocationsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.update.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.delete('/allocations/:uuid',
+        authenticateMiddleware([{ "jwt": [] }]),
+        function(request: any, response: any, next: any) {
+            const args = {
+                uuid: { "in": "path", "name": "uuid", "required": true, "dataType": "string", "validators": { "pattern": { "value": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}" } } },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<AllocationsController>(AllocationsController);
+            if (typeof controller['setStatus'] === 'function') {
+                (<any>controller).setStatus(undefined);
+            }
+
+
+            const promise = controller.delete.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
 

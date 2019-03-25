@@ -5,9 +5,8 @@ import { Body, Delete, Get, Post, Put, Query, Route, Security } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
 import { assertIsValid, UserError } from '~/modules/common';
 
-import { Asset } from './asset.entity';
 import { AssetService } from './assets.service';
-import { AssetCreateRequest, AssetUpdateRequest } from './assets.dto';
+import { AssetCreateRequest, AssetUpdateRequest, AssetResponse } from './assets.dto';
 
 @Route('assets')
 @provideSingleton(AssetsController)
@@ -24,7 +23,7 @@ export class AssetsController {
    */
   @Get()
   @Security('jwt')
-  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<Asset[]> {
+  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<AssetResponse[]> {
     return await this.service.readAll({ take, skip });
   }
 
@@ -34,7 +33,7 @@ export class AssetsController {
    */
   @Get('{uuid}')
   @Security('jwt')
-  public async get(uuid: string): Promise<Asset> {
+  public async get(uuid: string): Promise<AssetResponse> {
     const result = await this.service.read(uuid);
     if (!result) {
       throw new UserError(404, `Asset with uuid '${uuid}' was not found`);
@@ -44,7 +43,7 @@ export class AssetsController {
 
   @Post()
   @Security('jwt')
-  public async create(@Body() request: AssetCreateRequest): Promise<Asset> {
+  public async create(@Body() request: AssetCreateRequest): Promise<AssetResponse> {
     await assertIsValid(Object.assign(new AssetCreateRequest(), request));
     const result = await this.service.create(request);
     return result;
@@ -56,7 +55,7 @@ export class AssetsController {
    */
   @Put('{uuid}')
   @Security('jwt')
-  public async update(uuid: string, @Body() request: AssetUpdateRequest): Promise<Asset> {
+  public async update(uuid: string, @Body() request: AssetUpdateRequest): Promise<AssetResponse> {
     await assertIsValid(Object.assign(new AssetUpdateRequest(), request));
     const result = await this.service.update(uuid, request);
     return result;

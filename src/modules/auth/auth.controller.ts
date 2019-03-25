@@ -2,7 +2,7 @@ import { inject } from 'inversify';
 import { Body, Post, Route } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
 import { assertIsValid, HttpStatus, UserError } from '~/modules/common';
-import { User, UserCreateRequest, UserService } from '~/modules/users';
+import { UserCreateRequest, UserResponse, UserService } from '~/modules/users';
 
 import { AuthService } from './auth.service';
 import { AuthPayload } from './auth.types';
@@ -28,7 +28,7 @@ export class AuthController {
   }
 
   @Post('signup')
-  public async signup(@Body() request: UserCreateRequest): Promise<User> {
+  public async signup(@Body() request: UserCreateRequest): Promise<UserResponse> {
     await assertIsValid(Object.assign(new UserCreateRequest(), request));
     const result = await this.users.create(request, request.password);
     return result;

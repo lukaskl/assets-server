@@ -5,9 +5,8 @@ import { Body, Delete, Get, Post, Put, Query, Route, Security } from 'tsoa';
 import { provideSingleton } from '~/ioc/container';
 import { assertIsValid, UserError } from '~/modules/common';
 
-import { User } from './user.entity';
+import { UserCreateRequest, UserResponse, UserUpdateRequest } from './users.dto';
 import { UserService } from './users.service';
-import { UserCreateRequest, UserUpdateRequest } from './users.types';
 @Route('users')
 @provideSingleton(UsersController)
 export class UsersController {
@@ -17,13 +16,13 @@ export class UsersController {
    *
    * @isInt skip
    * @isInt take
-   * @minimum  take 0
-   * @minimum  skip 0
+   * @minimum take 0
+   * @minimum skip 0
    * @maximum take 100
    */
   @Get()
   @Security('jwt')
-  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<User[]> {
+  public async getAll(@Query() skip: number = 0, @Query() take: number = 100): Promise<UserResponse[]> {
     return await this.service.readAll({ take, skip });
   }
 
@@ -33,7 +32,7 @@ export class UsersController {
    */
   @Get('{uuid}')
   @Security('jwt')
-  public async get(uuid: string): Promise<User> {
+  public async get(uuid: string): Promise<UserResponse> {
     const result = await this.service.read(uuid);
     if (!result) {
       throw new UserError(404, `User with uuid '${uuid}' was not found`);
@@ -43,7 +42,7 @@ export class UsersController {
 
   @Post()
   @Security('jwt')
-  public async create(@Body() request: UserCreateRequest): Promise<User> {
+  public async create(@Body() request: UserCreateRequest): Promise<UserResponse> {
     await assertIsValid(Object.assign(new UserCreateRequest(), request));
     const result = await this.service.create(request, request.password);
     return result;
@@ -55,7 +54,7 @@ export class UsersController {
    */
   @Put('{uuid}')
   @Security('jwt')
-  public async update(uuid: string, @Body() request: UserUpdateRequest): Promise<User> {
+  public async update(uuid: string, @Body() request: UserUpdateRequest): Promise<UserResponse> {
     await assertIsValid(Object.assign(new UserUpdateRequest(), request));
     const result = await this.service.update(uuid, request, request.password);
     return result;

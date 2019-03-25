@@ -15,10 +15,10 @@ export class Allocation implements IModel {
   @Index({ unique: true })
   uuid: string;
 
-  @ManyToOne(() => User, other => other.allocations)
+  @ManyToOne(() => User, other => other.allocations, { onDelete: 'CASCADE' })
   allocatedTo: User;
 
-  @ManyToOne(() => Asset, other => other.allocations)
+  @ManyToOne(() => Asset, other => other.allocations, { onDelete: 'CASCADE' })
   asset: Asset;
 
   @Column({ type: 'timestamp with time zone' })

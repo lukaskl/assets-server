@@ -4,13 +4,12 @@
 		"application/json"
 	],
 	"definitions": {
-		"User": {
+		"UserResponse": {
 			"properties": {
-				"id": {
-					"type": "number",
-					"format": "double"
-				},
 				"uuid": {
+					"type": "string"
+				},
+				"email": {
 					"type": "string"
 				},
 				"firstName": {
@@ -20,23 +19,11 @@
 				"lastName": {
 					"type": "string",
 					"x-nullable": true
-				},
-				"email": {
-					"type": "string"
-				},
-				"passwordHash": {
-					"type": "string"
-				},
-				"salt": {
-					"type": "string"
 				}
 			},
 			"required": [
-				"id",
 				"uuid",
-				"email",
-				"passwordHash",
-				"salt"
+				"email"
 			],
 			"type": "object"
 		},
@@ -98,6 +85,131 @@
 				"password"
 			],
 			"type": "object"
+		},
+		"AssetTypeResponse": {
+			"properties": {
+				"uuid": {
+					"type": "string"
+				},
+				"code": {
+					"type": "string"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"uuid",
+				"code",
+				"attributes"
+			],
+			"type": "object"
+		},
+		"AssetResponse": {
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"$ref": "#/definitions/AssetTypeResponse"
+				},
+				"attributeValues": {
+					"type": "object"
+				}
+			},
+			"required": [
+				"name",
+				"type",
+				"attributeValues"
+			],
+			"type": "object"
+		},
+		"AssetCreateRequest": {
+			"properties": {
+				"typeCode": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"attributeValues": {
+					"type": "object"
+				}
+			},
+			"required": [
+				"typeCode",
+				"name",
+				"attributeValues"
+			],
+			"type": "object"
+		},
+		"AssetUpdateRequest": {
+			"properties": {
+				"typeCode": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"name": {
+					"type": "string",
+					"x-nullable": true
+				},
+				"attributeValues": {
+					"type": "object",
+					"x-nullable": true
+				}
+			},
+			"type": "object"
+		},
+		"AssetTypeCreateRequest": {
+			"properties": {
+				"code": {
+					"type": "string"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"code",
+				"attributes"
+			],
+			"type": "object"
+		},
+		"AssetTypeUpdateRequest": {
+			"properties": {
+				"code": {
+					"type": "string"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"code",
+				"attributes"
+			],
+			"type": "object"
+		},
+		"AllocationResponse": {
+			"properties": {},
+			"type": "object"
+		},
+		"AllocationCreateRequest": {
+			"properties": {},
+			"type": "object"
+		},
+		"AllocationUpdateRequest": {
+			"properties": {},
+			"type": "object"
 		}
 	},
 	"info": {
@@ -118,7 +230,7 @@
 						"schema": {
 							"type": "array",
 							"items": {
-								"$ref": "#/definitions/User"
+								"$ref": "#/definitions/UserResponse"
 							}
 						}
 					}
@@ -159,7 +271,7 @@
 					"200": {
 						"description": "Ok",
 						"schema": {
-							"$ref": "#/definitions/User"
+							"$ref": "#/definitions/UserResponse"
 						}
 					}
 				},
@@ -190,7 +302,7 @@
 					"200": {
 						"description": "Ok",
 						"schema": {
-							"$ref": "#/definitions/User"
+							"$ref": "#/definitions/UserResponse"
 						}
 					}
 				},
@@ -218,7 +330,7 @@
 					"200": {
 						"description": "Ok",
 						"schema": {
-							"$ref": "#/definitions/User"
+							"$ref": "#/definitions/UserResponse"
 						}
 					}
 				},
@@ -312,7 +424,7 @@
 					"200": {
 						"description": "Ok",
 						"schema": {
-							"$ref": "#/definitions/User"
+							"$ref": "#/definitions/UserResponse"
 						}
 					}
 				},
@@ -325,6 +437,515 @@
 						"schema": {
 							"$ref": "#/definitions/UserCreateRequest"
 						}
+					}
+				]
+			}
+		},
+		"/assets": {
+			"get": {
+				"operationId": "GetAll",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/AssetResponse"
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"default": 0,
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0
+					},
+					{
+						"default": 100,
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 100
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AssetCreateRequest"
+						}
+					}
+				]
+			}
+		},
+		"/assets/{uuid}": {
+			"get": {
+				"operationId": "Get",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					},
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AssetUpdateRequest"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Delete",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "number",
+							"format": "double"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			}
+		},
+		"/assetTypes": {
+			"get": {
+				"operationId": "GetAll",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/AssetTypeResponse"
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"default": 0,
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0
+					},
+					{
+						"default": 100,
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 100
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetTypeResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AssetTypeCreateRequest"
+						}
+					}
+				]
+			}
+		},
+		"/assetTypes/{uuidOrCode}": {
+			"get": {
+				"operationId": "Get",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetTypeResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuidOrCode",
+						"required": true,
+						"type": "string",
+						"minLength": 2
+					}
+				]
+			}
+		},
+		"/assetTypes/{uuid}": {
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AssetTypeResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					},
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AssetTypeUpdateRequest"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Delete",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "number",
+							"format": "double"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			}
+		},
+		"/allocations": {
+			"get": {
+				"operationId": "GetAll",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/AllocationResponse"
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"default": 0,
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0
+					},
+					{
+						"default": 100,
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"format": "int32",
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 100
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AllocationResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AllocationCreateRequest"
+						}
+					}
+				]
+			}
+		},
+		"/allocations/{uuid}": {
+			"get": {
+				"operationId": "Get",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AllocationResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/AllocationResponse"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
+					},
+					{
+						"in": "body",
+						"name": "request",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/AllocationUpdateRequest"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Delete",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "number",
+							"format": "double"
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"type": "string",
+						"pattern": "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}"
 					}
 				]
 			}
