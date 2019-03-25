@@ -61,6 +61,8 @@ yarn build
 ## Todo
 
 - omit extra properties from the DTO objects (write custom tsoa template)
+- remove global ioc container (imposed by 3rd party library - tsoa)
+- remove global database connection (imposed by 3rd party library - typeorm)
 
 ## known issues:
 

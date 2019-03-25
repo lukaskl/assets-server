@@ -1,6 +1,6 @@
 {
    "name": "bulb-server",
-   "version": "0.1.0",
+   "version": "1.0.0",
    "description": "Assets manager",
    "scripts": {
       "start": "webpack --config config/webpack.config.dev.js",
