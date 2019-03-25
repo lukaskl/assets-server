@@ -1,9 +1,8 @@
 import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { provideRepository } from '~/ioc';
+import { Asset } from '~/modules/assets';
 import { IModel } from '~/modules/common';
-
-import { User } from '../users';
-import { Asset } from '../assets/asset.entity';
+import { User } from '~/modules/users';
 
 @provideRepository(Allocation)
 @Entity()
@@ -15,10 +14,10 @@ export class Allocation implements IModel {
   @Index({ unique: true })
   uuid: string;
 
-  @ManyToOne(() => User, other => other.allocations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => require('../users').User, (other: User) => other.allocations, { onDelete: 'CASCADE' })
   allocatedTo: User;
 
-  @ManyToOne(() => Asset, other => other.allocations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => require('../assets').Asset, (other: Asset) => other.allocations, { onDelete: 'CASCADE' })
   asset: Asset;
 
   @Column({ type: 'timestamp with time zone' })
