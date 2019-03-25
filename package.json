@@ -46,7 +46,7 @@
       "@types/lodash": "^4.14.92",
       "@types/lodash-es": "^4.17.3",
       "@types/mocha": "^5.2.6",
-      "@types/node": "^8.0.29",
+      "@types/node": "^11.11.6",
       "@types/pg": "^7.4.14",
       "@types/prettier": "^1.16.1",
       "@types/sinon": "^7.0.10",
