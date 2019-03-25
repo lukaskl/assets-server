@@ -1,7 +1,8 @@
 import { IsEmail, IsOptional, Length } from 'class-validator';
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { provideRepository } from '~/ioc';
 import { IModel } from '~/modules/common';
+import { Allocation } from '../allocations';
 
 @provideRepository(User)
 @Entity()
@@ -9,7 +10,7 @@ export class User implements IModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'uuid', readonly: true })
+  @Column({ type: 'uuid', readonly: true })
   @Index({ unique: true })
   uuid: string;
 
@@ -33,4 +34,7 @@ export class User implements IModel {
 
   @Column({ select: false })
   salt: string;
+
+  @OneToMany(() => require('../allocations').Allocation, (other: Allocation) => other.asset)
+  allocations: Allocation[];
 }

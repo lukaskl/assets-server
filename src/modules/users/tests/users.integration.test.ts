@@ -10,7 +10,7 @@ const clearTable = async <T>(repository: Repository<T>) => {
   await repository.query(`DELETE FROM "${repository.metadata.tableName}"`);
 };
 
-describe('Users Integration', async () => {
+describe('Users Integration Tests', async () => {
   let testServer: Unpacked<ReturnType<typeof initTestServer>>;
   let userService: UserService;
   let userRepository: Repository<User>;

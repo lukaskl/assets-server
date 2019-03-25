@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import chalk from 'chalk';
 import path from 'path';
+import '../../routes.tsoa';
 
 function getPath(): string {
   const stack = new Error().stack;
